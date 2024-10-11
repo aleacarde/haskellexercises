@@ -40,6 +40,7 @@ module Lecture2
     , constantFolding
     ) where
 
+
 -- VVV If you need to import libraries, do it after this line ... VVV
 
 -- ^^^ and before this line. Otherwise the test suite might fail  ^^^
@@ -51,11 +52,31 @@ zero, you can stop calculating product and return 0 immediately.
 >>> lazyProduct [4, 3, 7]
 84
 -}
+
+{-
+--ChatGPT 4o's answer.
+
+lazyProduct :: (Num a, Eq a) => [a] -> a
+lazyProduct [] = 1
+lazyProduct (x : xs)
+    | x == 0    = 0
+    | otherwise = x * lazyProduct xs
+-}
+
+
+
+-- My answer
 lazyProduct :: [Int] -> Int
 lazyProduct [] = 1
 lazyProduct (x : xs)
-    | x == 0 = 0
+    | x == 0    = 0
     | otherwise = x * lazyProduct xs
+
+
+{- 
+ChatGPT and I gave almost the exact same answer, but ChatGPT's was more general.
+
+-}
 
 {- | Implement a function that duplicates every element in the list.
 
@@ -65,18 +86,25 @@ lazyProduct (x : xs)
 "ccaabb"
 -}
 
+{-
+ChatGPT 4o's answer.
+
 duplicate :: [a] -> [a]
 duplicate []     = []
 duplicate (x:xs) = x : x : duplicate xs
 
-{-
+-}
+
+-- My answer
 duplicate :: [a] -> [a]
 duplicate [] = []
 duplicate [x] = [x, x]
 duplicate xs = duplicate firstElement ++ duplicate remainingElements
     where
         (firstElement, remainingElements) = splitAt 1 xs
--}
+
+-- ChatGPT's answer is better because I didn't need to use splitAt, since I only needed the first element on LHS of each split.
+-- Also, you can do double prepends, which I didn't realize. 
 
 {- | Implement function that takes index and a list and removes the
 element at the given position. Additionally, this function should also
@@ -88,7 +116,36 @@ return the removed element.
 >>> removeAt 10 [1 .. 5]
 (Nothing,[1,2,3,4,5])
 -}
-removeAt = error "TODO"
+{-
+ChatGPT 4o's Answer
+
+removeAt :: Int -> [a] -> (Maybe a, [a])
+removeAt _ [] = (Nothing, [])  -- Empty list case
+removeAt n xs
+    | n < 0    = (Nothing, xs)  -- Negative index, return Nothing
+    | otherwise = case splitAt n xs of
+        (left, [])     -> (Nothing, left)  -- If right part is empty, return Nothing
+        (left, y:ys)   -> (Just y, left ++ ys)  -- Otherwise, return the removed element
+
+-}
+
+{- 
+I couldn't figure this out on my own because I didn't properly understand that I could prepend in 
+the pattern matching to extract the first value in a list and then apply it to the right-hand side. 
+splitAt was also an unnecessary red herring. I also need to better understand how to use
+let-in statements. The key lesson of this exercise is that I need to spend more time understanding
+how Haskell does pattern matching and remember that functions can thus be used in places like case-of.
+-}
+
+removeAt :: Int -> [a] -> (Maybe a, [a])
+removeAt _ [] = (Nothing, [])  -- Empty list case
+removeAt n (x:xs)
+    | n < 0     = (Nothing, x:xs)  -- Negative index, return original list
+    | n == 0    = (Just x, xs)     -- Remove the first element (index 0)
+    | otherwise = let (removed, rest) = removeAt (n - 1) xs
+                  in (removed, x : rest)  -- Recursively remove element
+
+
 
 {- | Write a function that takes a list of lists and returns only
 lists of even lengths.
