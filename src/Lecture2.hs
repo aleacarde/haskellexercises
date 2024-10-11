@@ -65,14 +65,18 @@ lazyProduct (x : xs)
 "ccaabb"
 -}
 
+duplicate :: [a] -> [a]
+duplicate []     = []
+duplicate (x:xs) = x : x : duplicate xs
 
+{-
 duplicate :: [a] -> [a]
 duplicate [] = []
 duplicate [x] = [x, x]
 duplicate xs = duplicate firstElement ++ duplicate remainingElements
     where
         (firstElement, remainingElements) = splitAt 1 xs
-
+-}
 
 {- | Implement function that takes index and a list and removes the
 element at the given position. Additionally, this function should also
